@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
@@ -9,7 +8,6 @@ namespace Platformer.Gameplay
     /// <summary>
     /// Fired when the player has died.
     /// </summary>
-    /// <typeparam name="PlayerDeath"></typeparam>
     public class PlayerDeath : Simulation.Event<PlayerDeath>
     {
         PlatformerModel model = Simulation.GetModel<PlatformerModel>();
@@ -18,8 +16,8 @@ namespace Platformer.Gameplay
         {
             var player = model.player;
 
-            // Check if health is at or below zero.
-            if (!player.health.IsAlive || player.health.currentHP <= 0)
+            // Check if health is at or below zero or if player is in a death zone
+            if (!player.health.IsAlive || player.health.currentHP <= 0 || player.isInDeathZone)
             {
                 Debug.Log("Player is dying...");
 
@@ -47,6 +45,5 @@ namespace Platformer.Gameplay
                 Debug.LogWarning("PlayerDeath event triggered while player is alive!");
             }
         }
-
     }
 }

@@ -17,7 +17,26 @@ namespace Platformer.Mechanics
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
         public AudioClip ouchAudio;
+        public bool isInDeathZone = false; // Flag to track death zone status
 
+        void OnTriggerEnter2D(Collider2D other)
+        {
+            // Ensure the DeathZone has a tag of "DeathZone"
+            if (other.CompareTag("DeathZone"))
+            {
+                isInDeathZone = true;
+                Debug.Log("Player entered the death zone.");
+            }
+        }
+
+        void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.CompareTag("DeathZone"))
+            {
+                isInDeathZone = false;
+                Debug.Log("Player exited the death zone.");
+            }
+        }
         /// <summary>
         /// Max horizontal speed of the player.
         /// </summary>
