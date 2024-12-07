@@ -12,7 +12,7 @@ namespace Platformer.Mechanics
         public int maxHP = 100;
         public bool IsAlive => currentHP > 0;
 
-        int currentHP;
+        public int currentHP;
         public HealthBar HealthBar;
 
         public float invincibilityTime = 1f;  // Duration of invincibility after taking damage
@@ -36,30 +36,25 @@ namespace Platformer.Mechanics
 
         public void Decrement()
         {
-            // Check if invincibility is active (we are still in the invincibility window)
             if (Time.time - lastHitTime < invincibilityTime)
             {
-                return;  // Ignore further hits during invincibility
+                Debug.Log("Player is invincible. No damage taken.");
+                return;
             }
 
             currentHP = Mathf.Clamp(currentHP - 20, 0, maxHP);
+            Debug.Log($"Health after decrement: {currentHP}");
             HealthBar.SetHealth(currentHP);
-            lastHitTime = Time.time;  // Record the time of the hit
+            lastHitTime = Time.time;
 
-            // Start flashing when invincible
-            StartCoroutine(FlashInvincibility());
-
-            // If health reaches 0, schedule the death event
             if (currentHP <= 0)
             {
-                // Ensure we don't trigger death if it's already dead
-                if (IsAlive)
-                {
-                    var ev = Schedule<HealthIsZero>();
-                    ev.health = this;
-                }
+                Debug.Log("Player health reached zero.");
+                var ev = Schedule<HealthIsZero>();
+                ev.health = this;
             }
         }
+
 
 
         // Flash the player when invincible

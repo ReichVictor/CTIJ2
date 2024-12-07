@@ -17,20 +17,36 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             var player = model.player;
-            if (player.health.IsAlive)
+
+            // Check if health is at or below zero.
+            if (!player.health.IsAlive || player.health.currentHP <= 0)
             {
-                player.health.Die();
+                Debug.Log("Player is dying...");
+
+                // Set HP to zero to ensure it's consistent.
+                player.health.currentHP = 0;
+
+                // Disable camera following and player control.
                 model.virtualCamera.m_Follow = null;
                 model.virtualCamera.m_LookAt = null;
-                // player.collider.enabled = false;
                 player.controlEnabled = false;
 
+                // Play audio feedback.
                 if (player.audioSource && player.ouchAudio)
                     player.audioSource.PlayOneShot(player.ouchAudio);
+
+                // Trigger death animation.
                 player.animator.SetTrigger("hurt");
                 player.animator.SetBool("dead", true);
+
+                // Schedule player respawn or level restart.
                 Simulation.Schedule<PlayerSpawn>(2);
             }
+            else
+            {
+                Debug.LogWarning("PlayerDeath event triggered while player is alive!");
+            }
         }
+
     }
 }

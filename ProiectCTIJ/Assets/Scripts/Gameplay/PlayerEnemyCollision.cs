@@ -6,11 +6,6 @@ using static Platformer.Core.Simulation;
 
 namespace Platformer.Gameplay
 {
-
-    /// <summary>
-    /// Fired when a Player collides with an Enemy.
-    /// </summary>
-    /// <typeparam name="EnemyCollision"></typeparam>
     public class PlayerEnemyCollision : Simulation.Event<PlayerEnemyCollision>
     {
         public EnemyController enemy;
@@ -21,6 +16,15 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             var willHurtEnemy = player.Bounds.center.y >= enemy.Bounds.max.y;
+
+            // Get the player's Health component
+            var health = player.GetComponent<Health>();
+
+            if (health == null)
+            {
+                Debug.LogError("Player does not have a Health component!");
+                return;
+            }
 
             if (willHurtEnemy)
             {
@@ -46,7 +50,15 @@ namespace Platformer.Gameplay
             }
             else
             {
-                Schedule<PlayerDeath>();
+                Debug.Log($"Player health before damage: {health.currentHP}");
+                health.Decrement(); // Reduce player's health by 20
+                Debug.Log($"Player health after damage: {health.currentHP}");
+
+                if (health.currentHP <= 0)
+                {
+                    Debug.Log("Player died.");
+                    Schedule<PlayerDeath>();
+                }
             }
         }
     }
