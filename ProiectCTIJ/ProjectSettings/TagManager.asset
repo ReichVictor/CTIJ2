@@ -6,6 +6,8 @@ TagManager:
   tags:
   - TutorialRequirement
   - DeathZone
+  - Spawn
+  - Checkpoint
   layers:
   - Default
   - TransparentFX
