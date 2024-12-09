@@ -57,6 +57,11 @@ namespace Platformer.Mechanics
             var ev = Schedule<PlayerTokenCollision>();
             ev.token = this;
             ev.player = player;
+            // Increment the coin counter.
+            if (GameController.Instance != null)
+            {
+                GameController.Instance.CollectCoin();
+            }
         }
     }
 }
