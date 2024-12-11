@@ -14,32 +14,54 @@ namespace Platformer.Mechanics
         public PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         private int coinsCollected = 0;
+        private int enemiesKilled = 0;
+
+        // UI Elements
         public TextMeshProUGUI coinText;
 
+        // Shop
         public GameObject shopPanel;
         public Button openShopButton;
         public Button redButton;
         public Button blueButton;
         public Button greenButton;
-        public Button closeShopButton; // New button to close the shop
+        public Button closeShopButton; // Button to close the shop
         public GameObject player;
+
+        // Quests
+        public GameObject questPanel;
+        public Button quest1Button; // Button for "Kill 3 Enemies"
+        public Button quest2Button; // Button for "Collect 10 Coins"
+        public TextMeshProUGUI quest1Status; // Status text for quest 1
+        public TextMeshProUGUI quest2Status; // Status text for quest 2
+
+        private bool quest1Completed = false;
+        private bool quest2Completed = false;
 
         void OnEnable()
         {
             Instance = this;
 
-            openShopButton.onClick.AddListener(OpenShop);
-            redButton.onClick.AddListener(() => TryChangePlayerColor(Color.red));
-            blueButton.onClick.AddListener(() => TryChangePlayerColor(Color.blue));
-            greenButton.onClick.AddListener(() => TryChangePlayerColor(Color.green));
+            // Shop Button Listeners
+            if (openShopButton != null) openShopButton.onClick.AddListener(OpenShop);
+            if (redButton != null) redButton.onClick.AddListener(() => TryChangePlayerColor(Color.red));
+            if (blueButton != null) blueButton.onClick.AddListener(() => TryChangePlayerColor(Color.blue));
+            if (greenButton != null) greenButton.onClick.AddListener(() => TryChangePlayerColor(Color.green));
+            if (closeShopButton != null) closeShopButton.onClick.AddListener(CloseShop);
 
-            // Add listener for closing the shop panel
-            closeShopButton.onClick.AddListener(CloseShop);
+            // Quest Button Listeners
+            if (quest1Button != null) quest1Button.onClick.AddListener(CompleteQuest1);
+            if (quest2Button != null) quest2Button.onClick.AddListener(CompleteQuest2);
 
-            shopPanel.SetActive(false);
+            // Initialize UI
+            shopPanel.SetActive(false); // Ensure shop starts closed
+            DeselectButton(); // Deselect UI buttons
 
-            // Ensure no button is selected at the start
-            DeselectButton();
+            // Initialize quest buttons
+            quest1Button.interactable = false;
+            quest2Button.interactable = false;
+
+            UpdateQuestStatus();
         }
 
         void OnDisable()
@@ -51,11 +73,21 @@ namespace Platformer.Mechanics
         {
             if (Instance == this) Simulation.Tick();
 
-            // Prevent spacebar from triggering button actions
-            if (Input.GetKeyDown(KeyCode.Space))
+            // Prevent spacebar from triggering buttons unintentionally
+            if (Input.GetKeyDown(KeyCode.Space)) DeselectButton();
+
+            // Check quest progress and enable buttons if not completed
+            if (enemiesKilled >= 3 && !quest1Completed)
+                quest1Button.interactable = true;
+
+            if (coinsCollected >= 10 && !quest2Completed)
+                quest2Button.interactable = true;
+
+            UpdateQuestStatus();
+
+            if (Input.GetKeyDown(KeyCode.Q))
             {
-                // Ensure that spacebar doesn't trigger any button press if a button is selected
-                DeselectButton();
+                questPanel.SetActive(!questPanel.activeSelf); // Toggle panel visibility.
             }
         }
 
@@ -63,6 +95,11 @@ namespace Platformer.Mechanics
         {
             coinsCollected++;
             UpdateCoinUI();
+        }
+
+        public void KillEnemy()
+        {
+            enemiesKilled++;
         }
 
         private void UpdateCoinUI()
@@ -73,20 +110,45 @@ namespace Platformer.Mechanics
             }
         }
 
-        public int GetCoinsCollected()
+        private void UpdateQuestStatus()
         {
-            return coinsCollected;
+            quest1Status.text = $"Kill 3 Enemies: {enemiesKilled}/3";
+            quest2Status.text = $"Collect 10 Coins: {coinsCollected}/10";
+        }
+
+        private void CompleteQuest1()
+        {
+            if (enemiesKilled >= 3 && !quest1Completed)
+            {
+                coinsCollected += 10; // Reward 10 coins
+                UpdateCoinUI();
+
+                quest1Button.interactable = false; // Disable the button
+                quest1Completed = true; // Mark quest as completed
+                Debug.Log("Quest 1 Completed!");
+            }
+        }
+
+        private void CompleteQuest2()
+        {
+            if (coinsCollected >= 10 && !quest2Completed)
+            {
+                coinsCollected += 10; // Reward 10 coins
+                UpdateCoinUI();
+
+                quest2Button.interactable = false; // Disable the button
+                quest2Completed = true; // Mark quest as completed
+                Debug.Log("Quest 2 Completed!");
+            }
         }
 
         public void OpenShop()
         {
             shopPanel.SetActive(true);
-            // Ensure that no button is selected when the shop opens
-            DeselectButton();
+            DeselectButton(); // Ensure no button is preselected
         }
 
-        // Try to deduct coins and change color
-        void TryChangePlayerColor(Color newColor)
+        private void TryChangePlayerColor(Color newColor)
         {
             if (DeductCoins(10)) // Deduct 10 coins if possible
             {
@@ -98,7 +160,7 @@ namespace Platformer.Mechanics
             }
         }
 
-        void ChangePlayerColor(Color newColor)
+        private void ChangePlayerColor(Color newColor)
         {
             SpriteRenderer playerSpriteRenderer = player.GetComponent<SpriteRenderer>();
             if (playerSpriteRenderer != null)
@@ -107,8 +169,7 @@ namespace Platformer.Mechanics
             }
         }
 
-        // Deduct coins if enough are available
-        public bool DeductCoins(int amount)
+        private bool DeductCoins(int amount)
         {
             if (coinsCollected >= amount)
             {
@@ -123,16 +184,13 @@ namespace Platformer.Mechanics
             }
         }
 
-        // Manually close the shop
-        void CloseShop()
+        private void CloseShop()
         {
             shopPanel.SetActive(false); // Hide the shop panel
         }
 
-        // Deselect the currently selected button (prevents spacebar interaction)
         private void DeselectButton()
         {
-            // Deselect the current selected UI element if any
             EventSystem.current.SetSelectedGameObject(null);
         }
     }
