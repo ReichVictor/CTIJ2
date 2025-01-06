@@ -17,26 +17,7 @@ namespace Platformer.Mechanics
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
         public AudioClip ouchAudio;
-        public bool isInDeathZone = false; // Flag to track death zone status
 
-        void OnTriggerEnter2D(Collider2D other)
-        {
-            // Ensure the DeathZone has a tag of "DeathZone"
-            if (other.CompareTag("DeathZone"))
-            {
-                isInDeathZone = true;
-                Debug.Log("Player entered the death zone.");
-            }
-        }
-
-        void OnTriggerExit2D(Collider2D other)
-        {
-            if (other.CompareTag("DeathZone"))
-            {
-                isInDeathZone = false;
-                Debug.Log("Player exited the death zone.");
-            }
-        }
         /// <summary>
         /// Max horizontal speed of the player.
         /// </summary>
@@ -48,10 +29,14 @@ namespace Platformer.Mechanics
 
         public JumpState jumpState = JumpState.Grounded;
         private bool stopJump;
-        /*internal new*/ public Collider2D collider2d;
-        /*internal new*/ public AudioSource audioSource;
+
+        public Collider2D collider2d;
+        public AudioSource audioSource;
         public Health health;
         public bool controlEnabled = true;
+
+        // Variabilă pentru a indica dacă jucătorul este în DeathZone
+        public bool isInDeathZone { get; private set; }
 
         bool jump;
         Vector2 move;
@@ -89,6 +74,22 @@ namespace Platformer.Mechanics
             }
             UpdateJumpState();
             base.Update();
+        }
+
+        void OnTriggerEnter2D(Collider2D other)
+        {
+            if (other.CompareTag("DeathZone"))
+            {
+                isInDeathZone = true;
+            }
+        }
+
+        void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.CompareTag("DeathZone"))
+            {
+                isInDeathZone = false;
+            }
         }
 
         void UpdateJumpState()
