@@ -40,7 +40,6 @@ namespace Platformer.Mechanics
 
         bool jump;
         Vector2 move;
-        Vector2 sprint = new Vector2(1.8f, 0);
         SpriteRenderer spriteRenderer;
         internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
@@ -147,15 +146,7 @@ namespace Platformer.Mechanics
             animator.SetBool("grounded", IsGrounded);
             animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
 
-            ///Compute velocity with sprint
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                targetVelocity = move * maxSpeed + sprint * move.x;
-            }
-            else
-            {
-                targetVelocity = move * maxSpeed;
-            }
+            targetVelocity = move * maxSpeed;
         }
 
         public enum JumpState
