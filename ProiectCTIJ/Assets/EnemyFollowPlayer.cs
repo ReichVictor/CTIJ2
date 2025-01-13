@@ -110,9 +110,6 @@ namespace Platformer.Mechanics
             // Detectează coliziunea cu Player-ul
             if (collision.gameObject.CompareTag("Player"))
             {
-                // Schimbă direcția inamicului la coliziunea cu Player-ul
-                movingRight = !movingRight;
-
                 // Calculează direcția de împingere pe axa X
                 Vector2 pushDirection = new Vector2(
                     Mathf.Sign(collision.transform.position.x - transform.position.x), // Direcția pe axa X
@@ -121,13 +118,7 @@ namespace Platformer.Mechanics
 
                 // Aplică efectul de împingere manual
                 StartCoroutine(PushPlayer(collision.transform, pushDirection));
-                Debug.Log("Player împins de inamic! Inamicul și-a schimbat direcția.");
-            }
-            else if (collision.gameObject.CompareTag("Obstacle")) // Asumăm că obstacolele au tag-ul "Obstacle"
-            {
-                // Inversează direcția de mișcare
-                movingRight = !movingRight;
-                Debug.Log("Inamicul s-a întors la coliziunea cu un obstacol.");
+                Debug.Log("Player împins de inamic!");
             }
         }
 
